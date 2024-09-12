@@ -2,6 +2,8 @@
 import { generateClient } from 'aws-amplify/api';
 import { useEffect, useState } from 'react'
 import { listPosts } from '@/src/graphql/queries';
+import * as subscriptions from '@/src/graphql/subscriptions';
+
 import Link from 'next/link'
 import { getUrl } from 'aws-amplify/storage';
 
@@ -32,11 +34,22 @@ export const getCoverImage = async (post) => {
 
 export default function Home() {
   const [posts, setPosts] = useState([])
+  const [post, setPost] = useState({})
 
+  const createSub = client
+    .graphql({ query: subscriptions.onCreatePost })
+    .subscribe({
+      next: ({ data }) => { 
+        console.log(data)
+        setPost(data) 
+      },
+      error: (error) => console.warn(error)
+    });
 
+  
   useEffect(() =>{
     fetchPosts();
-  },[])
+  },[post])
 
   const fetchPosts = async () => {
     try {

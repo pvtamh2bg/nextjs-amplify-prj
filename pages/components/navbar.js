@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { Hub } from 'aws-amplify/utils';
 
 const links = [
   {
@@ -24,10 +25,22 @@ const  Navbar = () => {
   const [nav, setNav] = useState(false);
   const [signedUser, setSignedUser] = useState(false);
   const { authStatus } = useAuthenticator(context => [context.authStatus]);
-
   useEffect(() =>{
-   
+    checkAuth()
   },[])
+
+  function checkAuth() {
+    Hub.listen('auth', ({ payload }) => {
+      switch (payload.event) {
+        case 'signedIn':
+          setSignedUser(true)
+          break;
+        case 'signedOut':
+          setSignedUser(false)
+          break;
+      }
+    });
+  }
   return (
     <nav>
     <div className="flex justify-between items-center w-full h-20 px-4 text-white bg-black nav">
